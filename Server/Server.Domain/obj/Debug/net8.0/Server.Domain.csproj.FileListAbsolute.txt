@@ -1,0 +1,12 @@
+C:\Users\admin\WebstormProjects\Sergei\websec-2\Server\Server.Domain\bin\Debug\net8.0\Server.Domain.deps.json
+C:\Users\admin\WebstormProjects\Sergei\websec-2\Server\Server.Domain\bin\Debug\net8.0\Server.Domain.dll
+C:\Users\admin\WebstormProjects\Sergei\websec-2\Server\Server.Domain\bin\Debug\net8.0\Server.Domain.pdb
+C:\Users\admin\WebstormProjects\Sergei\websec-2\Server\Server.Domain\obj\Debug\net8.0\Server.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\admin\WebstormProjects\Sergei\websec-2\Server\Server.Domain\obj\Debug\net8.0\Server.Domain.AssemblyInfoInputs.cache
+C:\Users\admin\WebstormProjects\Sergei\websec-2\Server\Server.Domain\obj\Debug\net8.0\Server.Domain.AssemblyInfo.cs
+C:\Users\admin\WebstormProjects\Sergei\websec-2\Server\Server.Domain\obj\Debug\net8.0\Server.Domain.csproj.CoreCompileInputs.cache
+C:\Users\admin\WebstormProjects\Sergei\websec-2\Server\Server.Domain\obj\Debug\net8.0\Server.Domain.sourcelink.json
+C:\Users\admin\WebstormProjects\Sergei\websec-2\Server\Server.Domain\obj\Debug\net8.0\Server.Domain.dll
+C:\Users\admin\WebstormProjects\Sergei\websec-2\Server\Server.Domain\obj\Debug\net8.0\refint\Server.Domain.dll
+C:\Users\admin\WebstormProjects\Sergei\websec-2\Server\Server.Domain\obj\Debug\net8.0\Server.Domain.pdb
+C:\Users\admin\WebstormProjects\Sergei\websec-2\Server\Server.Domain\obj\Debug\net8.0\ref\Server.Domain.dll
