@@ -5,7 +5,16 @@ public class PlayerRepository
 {
     public List<Player> Players { get; set; } = [];
 
-    public void Add(Player player) => Players.Add(player);
+    public void Add(Player player)
+    {
+        var p = GetById(player.Id);
+        if (p != null)
+        {
+            p.Name = player.Name;
+            return;
+        }
+        Players.Add(player);
+    }
 
     public List<Player> GetAll() => Players;
 
@@ -15,6 +24,16 @@ public class PlayerRepository
     }
 
     public Player? GetById(string id) => GetAll().FirstOrDefault(p => p.Id == id);
+
+    public int GetCountStarById(string id)
+    {
+        var player = GetById(id);
+        if (player != null)
+        {
+            return player.CountStar;
+        }
+        return 0;
+    }
 
     public void IncrementStarCount(string id)
     {

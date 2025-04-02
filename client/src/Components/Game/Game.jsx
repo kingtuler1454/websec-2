@@ -1,31 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import {HubConnectionBuilder, HubConnectionState, LogLevel} from "@microsoft/signalr";
+import { HubConnectionBuilder, HubConnectionState, LogLevel } from "@microsoft/signalr";
 import styles from "./Game.module.css";
-import TopPlayers from "./TopPlayers";
-import PlayerInfo from "./PlayerInfo";
-
-const NameForm = ({ onSubmit }) => {
-  const [name, setName] = useState("");
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (name.trim()) {
-      onSubmit(name);
-    }
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="name-form">
-      <input
-        type="text"
-        placeholder="Enter your name"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-      />
-      <button type="submit">Join Game</button>
-    </form>
-  );
-};
+import TopPlayers from "../TopPlayers/TopPlayers";
+import NameForm from "../NameForm/NameForm";
+import PlayerInfo from "../PlayerInfo/PlayerInfo";
+import ErrorMessage from "../ErrorMessage/ErrorMessage";
 
 const Game = () => {
   const [connection, setConnection] = useState(null);
@@ -38,6 +17,7 @@ const Game = () => {
   const [playerName, setPlayerName] = useState("");
   const [starCount, setStarCount] = useState(0);
   const [carImages, setCarImages] = useState({});
+  const [isError, setIsError] = useState(false);
 
   const handleKeyDown = useCallback((event, conn) => {
     const directions = {
@@ -56,6 +36,32 @@ const Game = () => {
       sendMovement(conn);
     }
   }, []);
+
+  const handleKeyUp = (event) => {
+    const directions = {
+      ArrowUp: "up",
+      ArrowDown: "down",
+      ArrowLeft: "left",
+      ArrowRight: "right",
+      w: "up",
+      s: "down",
+      a: "left",
+      d: "right",
+    };
+
+    if (directions[event.key]) {
+      pressedKeys.current.delete(directions[event.key]);
+    }
+  };
+
+  const sendMovement = (conn) => {
+    if (conn.state === HubConnectionState.Connected) {
+      const movementArray = Array.from(pressedKeys.current);
+      if (movementArray.length > 0) {
+        conn.invoke("Move", movementArray);
+      }
+    }
+  };
 
   const checkAndConnect = useCallback(async () => {
     if (connection) return;
@@ -103,7 +109,7 @@ const Game = () => {
     }
   };
 
-  const handleLeave = async () => {
+  const handleLeave = useCallback(async () => {
     if (connection) {
       try {
         await connection.invoke("LeaveGame");
@@ -111,10 +117,11 @@ const Game = () => {
         setPlayerName("");
         setStarCount(0);
       } catch (error) {
-        console.error("Ошибка выхода из игры: ", error);
+        console.error("Error exit: ", error);
       }
     }
-  };
+  }, [connection]);
+
 
   useEffect(() => {
     if (!connection) return;
@@ -135,8 +142,17 @@ const Game = () => {
       setPlayers(playersData);
     });
 
+    connection.on("Info", (status) => {
+      if (status === "full") {
+        setIsError(true);
+        handleLeave();
+      } else if (status === "empty") {
+        setIsError(false);
+      }
+    });
+
     return () => connection.stop();
-  }, [connection]);
+  }, [connection, handleLeave]);
 
   useEffect(() => {
     if (!canvasRef.current || Object.keys(carImages).length === 0) return;
@@ -163,32 +179,6 @@ const Game = () => {
     }
   }, [players, star, carImages]);
 
-  const handleKeyUp = (event) => {
-    const directions = {
-      ArrowUp: "up",
-      ArrowDown: "down",
-      ArrowLeft: "left",
-      ArrowRight: "right",
-      w: "up",
-      s: "down",
-      a: "left",
-      d: "right",
-    };
-
-    if (directions[event.key]) {
-      pressedKeys.current.delete(directions[event.key]);
-    }
-  };
-
-  const sendMovement = (conn) => {
-    if (conn.state === HubConnectionState.Connected) {
-      const movementArray = Array.from(pressedKeys.current);
-      if (movementArray.length > 0) {
-        conn.invoke("Move", movementArray);
-      }
-    }
-  };
-
   return (
     <div>
       {!isJoined ? (
@@ -196,6 +186,7 @@ const Game = () => {
       ) : (
         <PlayerInfo playerName={playerName} starCount={starCount} onLeave={handleLeave} />
       )}
+      {isError && <ErrorMessage />}
       <TopPlayers players={topPlayers} />
       <canvas className={styles.container} ref={canvasRef} width={620} height={620} />
     </div>

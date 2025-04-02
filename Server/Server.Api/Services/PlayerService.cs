@@ -11,4 +11,6 @@ public class PlayerService(PlayerRepository repository)
     public List<Player> GetTopPlayers() => repository.GetTopPlayers();
 
     public void IncrementStarCount(string id) => repository.IncrementStarCount(id);
+
+    public int GetCountStarById(string id) => repository.GetCountStarById(id);
 }

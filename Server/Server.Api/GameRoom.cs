@@ -31,7 +31,7 @@ public class GameRoom
 
     public async Task RegisterPlayer(string connectionId, string name)
     {
-        if (Players.Count >= 10)
+        if (Players.Count >= 2)
         {
             await _hubContext.Clients.Client(connectionId).SendAsync("Info", "full");
             return;
@@ -46,7 +46,7 @@ public class GameRoom
             Id = connectionId,
             X = new Random().Next(100, 450),
             Y = new Random().Next(100, 450),
-            Color = $"#{new Random().Next(0x1000000):X6}"
+            Color = new Random().Next(1, 7)
         };
 
         var player = new Player
@@ -57,6 +57,9 @@ public class GameRoom
         };
         _service.AddPlayer(player);
         Players[connectionId] = player;
+        await _hubContext.Clients.Client(player.Id).SendAsync("ReceiveStars", _service.GetCountStarById(player.Id));
+        var topPlayers = _service.GetTopPlayers();
+        await _hubContext.Clients.All.SendAsync("TopPlayers", topPlayers);
     }
 
     public void MovePlayer(string connectionId, List<string> directions)
@@ -121,8 +124,8 @@ public class GameRoom
                 await _hubContext.Clients.All.SendAsync("StarCollected", Star);
 
                 _service.IncrementStarCount(player.Id);
-                var topPlayers = _service.GetTopPlayers();
-                await _hubContext.Clients.All.SendAsync("TopPlayers", topPlayers);
+                await _hubContext.Clients.Client(player.Id).SendAsync("ReceiveStars", _service.GetCountStarById(player.Id));
+                await _hubContext.Clients.All.SendAsync("TopPlayers", _service.GetTopPlayers());
             }
 
             foreach (var otherPlayer in Players.Values)
@@ -168,7 +171,6 @@ public class GameRoom
             }
         }
         await _hubContext.Clients.All.SendAsync("GameState", Players.Values);
-        await _hubContext.Clients.All.SendAsync("StarCollected", Star);
     }
 
     public async Task RemovePlayer(string connectionId)
@@ -177,6 +179,6 @@ public class GameRoom
         {
             await _hubContext.Clients.All.SendAsync("PlayerLeft", connectionId);
         }
-        if (Players.Count < 10) await _hubContext.Clients.All.SendAsync("Info", "empty");
+        if (Players.Count < 2) await _hubContext.Clients.All.SendAsync("Info", "empty");
     }
 }
