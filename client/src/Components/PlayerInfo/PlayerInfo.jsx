@@ -1,11 +1,14 @@
 import React from 'react';
+import styles from './PlayerInfo.module.css';
 
 const PlayerInfo = ({ playerName, starCount, onLeave }) => {
   return (
-    <div className="player-info">
-      <span>👤 {playerName}</span>
-      <span>⭐ {starCount}</span>
-      <button className="leave-btn" onClick={onLeave}>Выйти</button>
+    <div className={styles.playerInfo}>
+      <div className={styles.container}>
+        <span>{playerName}</span>
+        <span>{starCount}</span>
+      </div>
+      <button onClick={onLeave}>Выйти</button>
     </div>
   );
 };

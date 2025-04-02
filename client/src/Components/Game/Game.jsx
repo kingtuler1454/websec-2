@@ -5,6 +5,7 @@ import TopPlayers from "../TopPlayers/TopPlayers";
 import NameForm from "../NameForm/NameForm";
 import PlayerInfo from "../PlayerInfo/PlayerInfo";
 import ErrorMessage from "../ErrorMessage/ErrorMessage";
+import environment from "../../config/environment";
 
 const Game = () => {
   const [connection, setConnection] = useState(null);
@@ -17,6 +18,7 @@ const Game = () => {
   const [playerName, setPlayerName] = useState("");
   const [starCount, setStarCount] = useState(0);
   const [carImages, setCarImages] = useState({});
+  const [starImage, setStarImage] = useState(null);
   const [isError, setIsError] = useState(false);
 
   const handleKeyDown = useCallback((event, conn) => {
@@ -67,7 +69,7 @@ const Game = () => {
     if (connection) return;
 
     const newConnection = new HubConnectionBuilder()
-      .withUrl("http://localhost:5100/game")
+      .withUrl(environment.backendUrl)
       .withAutomaticReconnect()
       .configureLogging(LogLevel.Error)
       .build();
@@ -84,6 +86,9 @@ const Game = () => {
   }, [connection, handleKeyDown]);
 
   useEffect(() => {
+    const star = new Image();
+    star.src = "/star.png";
+    setStarImage(star);
     const images = {};
     for (let i = 1; i <= 6; i++) {
       const img = new Image();
@@ -160,7 +165,10 @@ const Game = () => {
     const ctx = canvas.getContext("2d");
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
+    if (star) {
+      ctx.drawImage(starImage,star.x, star.y, 28, 28);
+      ctx.fill();
+    }
     Object.values(players).forEach((player) => {
       const carImage = carImages[player.car.color];
       if (carImage) {
@@ -170,25 +178,20 @@ const Game = () => {
         ctx.fillText(player.name, player.car.x, player.car.y - 5);
       }
     });
-
-    if (star) {
-      ctx.fillStyle = "yellow";
-      ctx.beginPath();
-      ctx.arc(star.x, star.y, 5, 0, Math.PI * 2);
-      ctx.fill();
-    }
-  }, [players, star, carImages]);
+  }, [players, star, carImages, starImage]);
 
   return (
-    <div>
-      {!isJoined ? (
-        <NameForm onSubmit={handleJoin} />
-      ) : (
-        <PlayerInfo playerName={playerName} starCount={starCount} onLeave={handleLeave} />
-      )}
-      {isError && <ErrorMessage />}
+    <div className={styles.gameContainer}>
       <TopPlayers players={topPlayers} />
-      <canvas className={styles.container} ref={canvasRef} width={620} height={620} />
+      <canvas className={styles.container} ref={canvasRef} width={630} height={630} />
+      <div>
+        {!isJoined ? (
+          <NameForm onSubmit={handleJoin} />
+        ) : (
+          <PlayerInfo playerName={playerName} starCount={starCount} onLeave={handleLeave} />
+        )}
+        {isError && <ErrorMessage />}
+      </div>
     </div>
   );
 };
