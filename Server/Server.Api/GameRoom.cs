@@ -31,7 +31,7 @@ public class GameRoom
 
     public async Task RegisterPlayer(string connectionId, string name)
     {
-        if (Players.Count >= 2)
+        if (Players.Count >= 10)
         {
             await _hubContext.Clients.Client(connectionId).SendAsync("Info", "full");
             return;
@@ -179,6 +179,6 @@ public class GameRoom
         {
             await _hubContext.Clients.All.SendAsync("PlayerLeft", connectionId);
         }
-        if (Players.Count < 2) await _hubContext.Clients.All.SendAsync("Info", "empty");
+        if (Players.Count < 10) await _hubContext.Clients.All.SendAsync("Info", "empty");
     }
 }
