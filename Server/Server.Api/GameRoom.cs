@@ -44,7 +44,7 @@ public class GameRoom
         var car = new Car
         {
             Id = connectionId,
-            X = new Random().Next(100, 550),
+            X = new Random().Next(100, 450),
             Y = new Random().Next(100, 450),
             Color = $"#{new Random().Next(0x1000000):X6}"
         };
@@ -63,8 +63,8 @@ public class GameRoom
     {
         if (!Players.TryGetValue(connectionId, out var player)) return;
 
-        float acceleration = 0.2f;
-        float maxSpeed = 3f;
+        float acceleration = 0.3f;
+        float maxSpeed = 5f;
         float oppositeAcceleration = 1.0f;
 
         foreach (var direction in directions)
@@ -78,10 +78,10 @@ public class GameRoom
                     player.Car.SpeedY += player.Car.SpeedY < 0 ? oppositeAcceleration : acceleration;
                     break;
                 case "left":
-                    player.Car.SpeedY -= player.Car.SpeedY > 0 ? oppositeAcceleration : acceleration;
+                    player.Car.SpeedX -= player.Car.SpeedX > 0 ? oppositeAcceleration : acceleration;
                     break;
                 case "right":
-                    player.Car.SpeedY += player.Car.SpeedY < 0 ? oppositeAcceleration : acceleration;
+                    player.Car.SpeedX += player.Car.SpeedX < 0 ? oppositeAcceleration : acceleration;
                     break;
             }
         }
@@ -93,7 +93,7 @@ public class GameRoom
     public async Task UpdateGame()
     {
         float deceleration = 0.01f;
-        float maxSpeed = 3f;
+        float maxSpeed = 5f;
 
         foreach (var player in Players.Values)
         {
@@ -111,8 +111,8 @@ public class GameRoom
             player.Car.X += player.Car.SpeedX;
             player.Car.Y += player.Car.SpeedY;
 
-            player.Car.X = Math.Clamp(player.Car.X, 0, 610);
-            player.Car.Y = Math.Clamp(player.Car.Y, 0, 510);
+            player.Car.X = Math.Clamp(player.Car.X, 0, 600);
+            player.Car.Y = Math.Clamp(player.Car.Y, 0, 600);
 
             if (player.Car.X < Star.X + Star.Hitbox && player.Car.X + player.Car.Hitbox > Star.X - Star.Hitbox &&
                 player.Car.Y < Star.Y + Star.Hitbox && player.Car.Y + player.Car.Hitbox > Star.Y - Star.Hitbox)
@@ -168,6 +168,7 @@ public class GameRoom
             }
         }
         await _hubContext.Clients.All.SendAsync("GameState", Players.Values);
+        await _hubContext.Clients.All.SendAsync("StarCollected", Star);
     }
 
     public async Task RemovePlayer(string connectionId)

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.SignalR;
+using Server.Api;
 using Server.Api.Services;
 using Server.Domain.Repository;
 
@@ -15,10 +16,14 @@ builder.Services.AddCors(options =>
 builder.Services.AddSignalR();
 builder.Services.AddSingleton<PlayerRepository>();
 builder.Services.AddSingleton<PlayerService>();
+builder.Services.AddSingleton<GameRoom>();
 
 var app = builder.Build();
 
 app.UseCors("Cors");
-app.MapHub<Hub>("/game");
+
+app.MapHub<GameHub>("/game");
+
+
 
 app.Run();
